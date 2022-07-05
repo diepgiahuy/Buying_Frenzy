@@ -1,6 +1,8 @@
-package user
+package model
 
-type Model struct {
+import "context"
+
+type User struct {
 	CashBalance     float64 `json:"cashBalance"`
 	ID              int     `json:"id"`
 	Name            string  `json:"name"`
@@ -10,4 +12,8 @@ type Model struct {
 		TransactionAmount float64 `json:"transactionAmount"`
 		TransactionDate   string  `json:"transactionDate"`
 	} `json:"purchaseHistory"`
+}
+
+type UserStore interface {
+	AddUser(ctx context.Context, user User) error
 }

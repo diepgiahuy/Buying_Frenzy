@@ -1,25 +1,17 @@
-package restaurant
+package model
 
 import (
 	"context"
 	"time"
 )
 
-type Model struct {
-	CashBalance float64 `json:"cashBalance"`
-	Menu        []struct {
-		DishName string  `json:"dishName"`
-		Price    float64 `json:"price"`
-	} `json:"menu"`
-	OpeningHours   string `json:"openingHours"`
-	RestaurantName string `json:"restaurantName"`
+type Restaurant struct {
+	CashBalance    float64 `json:"cashBalance"`
+	RestaurantName string  `json:"restaurantName" gorm:"column:name"`
+	UpdatedAt      time.Time
+	CreatedAt      time.Time
 }
 
-type Store interface {
-	AddRestaurant(ctx context.Context, model Model)
-	GetRestaurantByDateTime(ctx context.Context, DateTime time.Time)
-}
-
-func TransformData() {
-
+type RestaurantStore interface {
+	AddRestaurant(ctx context.Context, restaurant []Restaurant) error
 }

@@ -7,8 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *Repo) AddRestaurant(ctx context.Context, restaurant []model.Restaurant) error {
-	if result := r.Db.Table("restaurant").Create(&restaurant); result.Error != nil {
+func (r *Repo) AddMenu(ctx context.Context, restaurant []model.Menu) error {
+	if result := r.Db.Table("menu").Create(&restaurant); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return gorm.ErrRecordNotFound
 		}
