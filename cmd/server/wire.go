@@ -1,3 +1,6 @@
+//go:build wireinject
+// +build wireinject
+
 package main
 
 import (
@@ -8,6 +11,7 @@ import (
 var ApplicationSet = wire.NewSet(
 	ProvideConfig,
 	ProvidePostgreDB,
+	ProvideStorage,
 )
 
 func InitApplication(ctx context.Context) (*ApplicationContext, func(), error) {
