@@ -1,8 +1,8 @@
-package main
+package cmd
 
 import (
-	"github.com/diepgiahuy/Buying_Frenzy/infra/config"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/storage"
+	"github.com/diepgiahuy/Buying_Frenzy/util/config"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 	"gorm.io/gorm"
@@ -11,7 +11,7 @@ import (
 
 func ProvideConfig() (config.Config, error) {
 	cfg := config.Config{}
-	err := godotenv.Load("./infra/config/dev.env")
+	err := godotenv.Load("./util/config/dev.env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}

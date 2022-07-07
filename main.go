@@ -20,13 +20,15 @@ type ApplicationContext struct {
 }
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	ctx := context.Background()
-	application, cleanup, err := InitApplication(ctx)
+	cli, cleanup, err := InitApplication(ctx)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+
 	handleSigterm(cleanup)
-	err = application.Commands().Run(os.Args)
+	err = cli.Commands().Run(os.Args)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}

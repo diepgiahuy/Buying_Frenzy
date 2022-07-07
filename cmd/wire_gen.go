@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package main
+package cmd
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 )
 
 // Injectors from wire.go:
+
 func InitApplication(ctx context.Context) (*ApplicationContext, func(), error) {
 	config, err := ProvideConfig()
 	if err != nil {
@@ -20,8 +21,8 @@ func InitApplication(ctx context.Context) (*ApplicationContext, func(), error) {
 	db := ProvidePostgreDB(config)
 	repo := ProvideStorage(db)
 	applicationContext := &ApplicationContext{
-		ctx: ctx,
-		db:  repo,
+		Ctx: ctx,
+		Db:  repo,
 	}
 	return applicationContext, func() {
 	}, nil
