@@ -4,18 +4,17 @@ import (
 	"time"
 )
 
-type opsHour struct {
-	ID           uint `gorm:"primaryKey"`
-	RestaurantID uint `gorm:"column:restaurant_id"`
-	date         time.Weekday
-	openHour     time.Time
-	closeHour    time.Time
-	Restaurant   Restaurant `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	DishName     string     `json:"dishName"`
-	Price        float64    `json:"price"`
+type OperationHour struct {
+	ID           uint   `gorm:"primaryKey"`
+	RestaurantID uint   `gorm:"column:restaurant_id"`
+	Day          string `gorm:"column:day"`
+	OpenHour     string
+	CloseHour    string
+	UpdatedAt    time.Time
+	CreatedAt    time.Time
 }
 
 // TableName overrides the table name
-func (o opsHour) TableName() string {
+func (o OperationHour) TableName() string {
 	return "ops_hour"
 }

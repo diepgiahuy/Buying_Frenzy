@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"errors"
+	"context"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/model"
 	"gorm.io/gorm"
 )
@@ -16,11 +16,16 @@ func NewRepo(db *gorm.DB) *Repo {
 	}
 }
 
-func (r *Repo) InsertUser(restaurant []model.Restaurant) error {
-	if result := r.Db.Table("restaurant").Create(&restaurant); result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return gorm.ErrRecordNotFound
-		}
+func (r *Repo) AddUser(ctx context.Context, user []model.User) error {
+	if result := r.Db.WithContext(ctx).Create(&user); result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
+func (r *Repo) AddUserWithBatches(ctx context.Context, user []model.User) error {
+
+	if result := r.Db.WithContext(ctx).CreateInBatches(&user, 100); result.Error != nil {
 		return result.Error
 	}
 	return nil

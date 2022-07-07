@@ -2,20 +2,20 @@ package model
 
 import (
 	"context"
-	"time"
 )
 
 type Menu struct {
-	Data      Data `json:"menu"`
-	UpdatedAt time.Time
-	CreatedAt time.Time
-}
-
-type Data []struct {
-	DishName string  `json:"dishName"`
-	Price    float64 `json:"price"`
+	ID           uint    `gorm:"primaryKey"`
+	RestaurantID uint    `gorm:"column:restaurant_id"`
+	DishName     string  `json:"dishName"`
+	Price        float64 `json:"price"`
 }
 
 type MenuStore interface {
 	AddMenu(ctx context.Context, restaurant []Restaurant) error
+}
+
+// TableName overrides the table name
+func (m Menu) TableName() string {
+	return "menu"
 }
