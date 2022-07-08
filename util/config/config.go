@@ -3,6 +3,7 @@ package config
 type Config struct {
 	PostgresConfig
 	Logrus
+	ServerConfig
 }
 
 type PostgresConfig struct {
@@ -15,4 +16,9 @@ type PostgresConfig struct {
 
 type Logrus struct {
 	LogLevel string `envconfig:"LOG_LEVEL"`
+}
+
+type ServerConfig struct {
+	Port string `envconfig:"HTTP_PORT"`
+	Env  int    `nvconfig:"Env"`
 }

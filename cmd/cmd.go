@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"context"
-	"github.com/diepgiahuy/Buying_Frenzy/infra"
+	"github.com/diepgiahuy/Buying_Frenzy/pkg/api"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/storage"
 	"github.com/diepgiahuy/Buying_Frenzy/util"
 	"github.com/urfave/cli"
@@ -11,17 +11,18 @@ import (
 )
 
 type ApplicationContext struct {
-	Ctx context.Context
-	Db  *storage.Repo
+	Ctx         context.Context
+	Db          *storage.Repo
+	httpHandler *api.GinServer
 }
 
 // Serve creates a command that start an http server
-func (a *ApplicationContext) Serve() cli.Command {
+func (app *ApplicationContext) Serve() cli.Command {
 	return cli.Command{
 		Name:  "serve",
 		Usage: "serve http request",
 		Action: func(c *cli.Context) error {
-			run()
+			run(app)
 			return nil
 		},
 	}
@@ -33,8 +34,8 @@ func (app *ApplicationContext) LoadData() cli.Command {
 		Name:  "load",
 		Usage: "import json data",
 		Action: func(c *cli.Context) error {
-			//loadRestaurantData(app)
-			loadUserData(app)
+			loadRestaurantData(app)
+			//loadUserData(app)
 			return nil
 		},
 	}
@@ -49,13 +50,9 @@ func (a *ApplicationContext) Commands() *cli.App {
 	return app
 }
 
-func run() {
+func run(app *ApplicationContext) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	ginServer := infra.NewServer(
-		8080,
-		infra.DebugMode,
-	)
-	ginServer.Start()
+	app.httpHandler.Start()
 }
 
 func loadRestaurantData(app *ApplicationContext) {

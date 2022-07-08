@@ -39,8 +39,10 @@ func LoadRestaurantData(jsonData []byte) []model.Restaurant {
 func transformHourData(opsHour string) []model.OperationHour {
 	regexFindHour := regexp.MustCompile(`((1[0-2]|0?[1-9])(?::([0-5][0-9]))? ?\s([AaPp][Mm]))`)
 	regexFormatTime := regexp.MustCompile(`\s(1[0-2]|0?[1-9])(\s[AaPp][Mm])`)
-	regexRemoveChar := regexp.MustCompile(`[-\s]`)
+	regexReplaceSpecialChar := regexp.MustCompile(`[-]`)
+	regexRemoveSpace := regexp.MustCompile(`[\s]`)
 	//"Mon, Fri 2:30 pm - 8 pm"
+	//"Mon - Weds
 	opsHour = regexFormatTime.ReplaceAllString(opsHour, " $1:00 $2")
 	splitDate := strings.Split(opsHour, "/")
 	formatToLayout := "3:04 pm"
@@ -49,7 +51,8 @@ func transformHourData(opsHour string) []model.OperationHour {
 	for _, date := range splitDate {
 		hour := regexFindHour.FindAllString(date, -1)
 		date = regexFindHour.ReplaceAllString(date, "")
-		date = regexRemoveChar.ReplaceAllString(date, "")
+		date = regexReplaceSpecialChar.ReplaceAllString(date, ",")
+		date = regexRemoveSpace.ReplaceAllString(date, "")
 		dayOfWeek := strings.Split(date, ",")
 		t, err := time.Parse(formatToLayout, hour[0])
 		if err != nil {
@@ -64,6 +67,9 @@ func transformHourData(opsHour string) []model.OperationHour {
 		}
 		closeHour := t.Format(parseToLayout)
 		for _, day := range dayOfWeek {
+			if day == "" {
+				continue
+			}
 			operationHour := model.OperationHour{
 				Day:       day,
 				OpenHour:  openHour,

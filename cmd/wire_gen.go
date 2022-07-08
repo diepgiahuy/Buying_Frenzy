@@ -20,9 +20,11 @@ func InitApplication(ctx context.Context) (*ApplicationContext, func(), error) {
 	}
 	db := ProvidePostgreDB(config)
 	repo := ProvideStorage(db)
+	ginServer := ProvideHandler(config, repo)
 	applicationContext := &ApplicationContext{
-		Ctx: ctx,
-		Db:  repo,
+		Ctx:         ctx,
+		Db:          repo,
+		httpHandler: ginServer,
 	}
 	return applicationContext, func() {
 	}, nil
@@ -34,4 +36,5 @@ var ApplicationSet = wire.NewSet(
 	ProvideConfig,
 	ProvidePostgreDB,
 	ProvideStorage,
+	ProvideHandler,
 )

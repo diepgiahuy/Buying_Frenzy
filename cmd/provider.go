@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/diepgiahuy/Buying_Frenzy/pkg/api"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/storage"
 	"github.com/diepgiahuy/Buying_Frenzy/util/config"
 	"github.com/joho/godotenv"
@@ -9,7 +10,7 @@ import (
 	"log"
 )
 
-func ProvideConfig() (config.Config, error) {
+func ProvideConfig() (*config.Config, error) {
 	cfg := config.Config{}
 	err := godotenv.Load("./util/config/dev.env")
 	if err != nil {
@@ -17,16 +18,20 @@ func ProvideConfig() (config.Config, error) {
 	}
 	err = envconfig.Process("", &cfg)
 	if err != nil {
-		return cfg, err
+		return &cfg, err
 	}
 
-	return cfg, nil
+	return &cfg, nil
 }
 
-func ProvidePostgreDB(cfg config.Config) *gorm.DB {
-	return storage.NewDB(cfg.Host, cfg.User, cfg.Password, cfg.Db, cfg.Port)
+func ProvidePostgreDB(cfg *config.Config) *gorm.DB {
+	return storage.NewDB(cfg.Host, cfg.User, cfg.Password, cfg.Db, cfg.PostgresConfig.Port)
 }
 
 func ProvideStorage(db *gorm.DB) *storage.Repo {
 	return storage.NewRepo(db)
+}
+
+func ProvideHandler(cfg *config.Config, repo *storage.Repo) *api.GinServer {
+	return api.NewServer(&cfg.ServerConfig, repo)
 }

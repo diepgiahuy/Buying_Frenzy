@@ -12,6 +12,7 @@ var ApplicationSet = wire.NewSet(
 	ProvideConfig,
 	ProvidePostgreDB,
 	ProvideStorage,
+	ProvideHandler,
 )
 
 func InitApplication(ctx context.Context) (*ApplicationContext, func(), error) {
