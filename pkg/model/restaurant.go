@@ -19,8 +19,8 @@ type RestaurantStore interface {
 	AddRestaurant(ctx context.Context, restaurant Restaurant) error
 	AddRestaurantWithBatches(ctx context.Context, restaurant []Restaurant) error
 	GetRestaurantWithDate(ctx context.Context, date string, offset int, pageSize int) ([]Restaurant, error)
-	GetRestaurantWithMoreDishes(ctx context.Context, priceBot float32, priceTop float32, numDishes int, top int) ([]Restaurant, error)
-	GetRestaurantWithLessDishes(ctx context.Context, priceBot float32, priceTop float32, numDishes int, top int) ([]Restaurant, error)
+	GetRestaurantWithCompareMore(ctx context.Context, priceBot float32, priceTop float32, numDishes int, top int) ([]Restaurant, error)
+	GetRestaurantWithCompareLess(ctx context.Context, priceBot float32, priceTop float32, numDishes int, top int) ([]Restaurant, error)
 	GetRestaurantByTerm(ctx context.Context, term string, offset int, pageSize int) ([]Restaurant, error)
 	GetRestaurantByID(ctx context.Context, restaurantID int64) (*Restaurant, error)
 }

@@ -60,10 +60,10 @@ func (r *RestaurantStore) GetRestaurantWithDate(ctx context.Context, date string
 	return res, nil
 }
 
-func (r *RestaurantStore) GetRestaurantWithMoreDishes(ctx context.Context, priceBot float32, priceTop float32, numDishes int, top int) ([]model.Restaurant, error) {
+func (r *RestaurantStore) GetRestaurantWithCompareMore(ctx context.Context, lowPrice float32, highPrice float32, numDishes int, topList int) ([]model.Restaurant, error) {
 
 	var res []model.Restaurant
-	if result := r.Db.WithContext(ctx).Raw("SELECT * FROM  restaurant"+
+	if result := r.Db.Debug().WithContext(ctx).Raw("SELECT * FROM  restaurant"+
 		"\nwhere id IN ("+
 		"\n    Select restaurant_id"+
 		"\n    from ("+
@@ -71,12 +71,12 @@ func (r *RestaurantStore) GetRestaurantWithMoreDishes(ctx context.Context, price
 		"\n             from menu"+
 		"\n             where price between ? and ?"+
 		"\n         ) as restaurant"+
-		"\n    where restaurant.num_dishes > ?"+
+		"\n    where restaurant.num_dishes >  ?"+
 		"\n    group by restaurant_id,num_dishes"+
 		"\n    order by num_dishes desc"+
 		"\n    limit ?"+
 		"\n)"+
-		"\n order by  name asc", priceBot, priceTop, numDishes, top).Preload("OperationHour").
+		"\n order by  name asc", lowPrice, highPrice, numDishes, topList).Preload("OperationHour").
 		Preload("Menu").
 		Find(&res); result.Error != nil {
 		return nil, result.Error
@@ -84,7 +84,7 @@ func (r *RestaurantStore) GetRestaurantWithMoreDishes(ctx context.Context, price
 	return res, nil
 }
 
-func (r *RestaurantStore) GetRestaurantWithLessDishes(ctx context.Context, priceBot float32, priceTop float32, numDishes int, top int) ([]model.Restaurant, error) {
+func (r *RestaurantStore) GetRestaurantWithCompareLess(ctx context.Context, lowPrice float32, highPrice float32, numDishes int, topList int) ([]model.Restaurant, error) {
 
 	var res []model.Restaurant
 	if result := r.Db.WithContext(ctx).Raw("SELECT * FROM  restaurant"+
@@ -100,7 +100,7 @@ func (r *RestaurantStore) GetRestaurantWithLessDishes(ctx context.Context, price
 		"\n    order by num_dishes desc"+
 		"\n    limit ?"+
 		"\n)"+
-		"\n order by  name asc", priceBot, priceTop, numDishes, top).
+		"\n order by  name asc", lowPrice, highPrice, numDishes, topList).
 		Preload("OperationHour").
 		Preload("Menu").
 		Find(&res); result.Error != nil {
