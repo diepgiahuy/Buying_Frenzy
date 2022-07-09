@@ -14,6 +14,7 @@ type User struct {
 type UserStore interface {
 	AddUser(ctx context.Context, user []User) error
 	AddUserWithBatches(ctx context.Context, user []User) error
+	GetUserByID(ctx context.Context, userID int64) (*User, error)
 }
 
 // TableName overrides the table name

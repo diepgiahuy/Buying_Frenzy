@@ -1,11 +1,24 @@
 package storage
 
 import (
+	"errors"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/model"
 	"golang.org/x/net/context"
+	"gorm.io/gorm"
+	"log"
 	"strconv"
 	"time"
 )
+
+// WithTx enables repository with transaction
+func (r *Repo) WithTx(txHandle *gorm.DB) *Repo {
+	if txHandle == nil {
+		log.Print("Transaction Database not found")
+		return r
+	}
+	r.Db = txHandle
+	return r
+}
 
 func (r *Repo) AddRestaurant(ctx context.Context, restaurant model.Restaurant) error {
 	if result := r.Db.WithContext(ctx).Create(&restaurant); result.Error != nil {
@@ -131,4 +144,24 @@ func (r *Repo) GetRestaurantByDishTerm(ctx context.Context, term string, offset 
 		return nil, result.Error
 	}
 	return res, nil
+}
+
+func (r *Repo) GetRestaurantByID(ctx context.Context, restaurantID int64) (*model.Restaurant, error) {
+
+	var restaurantData *model.Restaurant
+	if result := r.Db.WithContext(ctx).Preload("Menu").First(&restaurantData, restaurantID); result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, gorm.ErrRecordNotFound
+		}
+		return nil, result.Error
+	}
+	return restaurantData, nil
+}
+
+func (r *Repo) IncreaseRestaurantCashBalance(ctx context.Context, restaurant *model.Restaurant, cash float64) error {
+
+	if result := r.Db.WithContext(ctx).Model(&restaurant).Update("cash_balance", gorm.Expr("cash_balance + ?", cash)); result.Error != nil {
+		return result.Error
+	}
+	return nil
 }

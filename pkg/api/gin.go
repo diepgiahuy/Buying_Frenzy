@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/diepgiahuy/Buying_Frenzy/pkg/api/middleware"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/storage"
 	"github.com/diepgiahuy/Buying_Frenzy/util/config"
 	"github.com/gin-gonic/gin"
@@ -66,6 +67,7 @@ func (s *GinServer) setupRouter() {
 	v1.GET("/restaurants/less-dishes", s.listRestaurantsWithLessDishes)
 	v1.GET("/restaurants/:name", s.listRestaurantsByName)
 	v1.GET("/restaurants/dish/:name", s.listRestaurantsByDishName)
+	v1.POST("/purchase", middleware.DBTransactionMiddleware(s.store.Db), s.createOrder)
 
 	s.router = router
 }

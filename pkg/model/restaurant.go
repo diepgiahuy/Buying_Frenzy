@@ -22,6 +22,7 @@ type RestaurantStore interface {
 	GetRestaurantWithMoreDishes(ctx context.Context, priceBot float32, priceTop float32, numDishes int, top int) ([]Restaurant, error)
 	GetRestaurantWithLessDishes(ctx context.Context, priceBot float32, priceTop float32, numDishes int, top int) ([]Restaurant, error)
 	GetRestaurantByTerm(ctx context.Context, term string, offset int, pageSize int) ([]Restaurant, error)
+	GetRestaurantByID(ctx context.Context, restaurantID int64) (*Restaurant, error)
 }
 
 // TableName overrides the table name

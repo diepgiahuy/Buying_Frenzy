@@ -1,7 +1,6 @@
 package api
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -35,7 +34,7 @@ func (s *GinServer) listRestaurantsOpen(ctx *gin.Context) {
 		return
 	}
 	offset := (req.PageID - 1) * req.PageSize
-	res, err := s.store.GetRestaurantWithDate(context.Background(), req.Date, offset, req.PageSize)
+	res, err := s.store.GetRestaurantWithDate(ctx, req.Date, offset, req.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -49,7 +48,7 @@ func (s *GinServer) listRestaurantsWithMoreDishes(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	res, err := s.store.GetRestaurantWithMoreDishes(context.Background(), *req.PriceBot, *req.PriceTop, *req.NumDishes, *req.Top)
+	res, err := s.store.GetRestaurantWithMoreDishes(ctx, *req.PriceBot, *req.PriceTop, *req.NumDishes, *req.Top)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -63,7 +62,7 @@ func (s *GinServer) listRestaurantsWithLessDishes(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	res, err := s.store.GetRestaurantWithLessDishes(context.Background(), *req.PriceBot, *req.PriceTop, *req.NumDishes, *req.Top)
+	res, err := s.store.GetRestaurantWithLessDishes(ctx, *req.PriceBot, *req.PriceTop, *req.NumDishes, *req.Top)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -83,7 +82,7 @@ func (s *GinServer) listRestaurantsByName(ctx *gin.Context) {
 		return
 	}
 	offset := (req.PageID - 1) * req.PageSize
-	res, err := s.store.GetRestaurantByTerm(context.Background(), uri.Name, offset, req.PageSize)
+	res, err := s.store.GetRestaurantByTerm(ctx, uri.Name, offset, req.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -103,7 +102,7 @@ func (s *GinServer) listRestaurantsByDishName(ctx *gin.Context) {
 		return
 	}
 	offset := (req.PageID - 1) * req.PageSize
-	res, err := s.store.GetRestaurantByDishTerm(context.Background(), uri.Name, offset, req.PageSize)
+	res, err := s.store.GetRestaurantByDishTerm(ctx, uri.Name, offset, req.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
