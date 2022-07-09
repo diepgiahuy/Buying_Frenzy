@@ -12,7 +12,7 @@ import (
 
 type ApplicationContext struct {
 	Ctx         context.Context
-	Db          *storage.Repo
+	Db          *storage.PostgresStore
 	httpHandler *api.GinServer
 }
 
@@ -62,7 +62,7 @@ func loadRestaurantData(app *ApplicationContext) {
 		log.Fatal("Error when opening file: ", err)
 	}
 	restaurants := util.LoadRestaurantData(jsonData)
-	err = app.Db.AddRestaurantWithBatches(app.Ctx, restaurants)
+	err = app.Db.GetRestaurantStore().AddRestaurantWithBatches(app.Ctx, restaurants)
 	if err != nil {
 		return
 	}
@@ -75,7 +75,7 @@ func loadUserData(app *ApplicationContext) {
 		log.Fatal("Error when opening file: ", err)
 	}
 	users := util.LoadUserData(jsonData)
-	err = app.Db.AddUserWithBatches(app.Ctx, users)
+	err = app.Db.GetUserStore().AddUserWithBatches(app.Ctx, users)
 	if err != nil {
 		return
 	}

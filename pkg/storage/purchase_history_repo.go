@@ -3,9 +3,20 @@ package storage
 import (
 	"context"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/model"
+	"gorm.io/gorm"
 )
 
-func (r *Repo) AddHistory(ctx context.Context, history model.PurchaseHistory) error {
+type HistoryStore struct {
+	Db *gorm.DB
+}
+
+func NewHistoryStore(db *gorm.DB) *HistoryStore {
+	return &HistoryStore{
+		Db: db,
+	}
+}
+
+func (r *HistoryStore) AddHistory(ctx context.Context, history model.PurchaseHistory) error {
 	if result := r.Db.WithContext(ctx).Create(&history); result.Error != nil {
 		return result.Error
 	}

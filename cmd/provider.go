@@ -6,7 +6,6 @@ import (
 	"github.com/diepgiahuy/Buying_Frenzy/util/config"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
-	"gorm.io/gorm"
 	"log"
 )
 
@@ -24,14 +23,10 @@ func ProvideConfig() (*config.Config, error) {
 	return &cfg, nil
 }
 
-func ProvidePostgreDB(cfg *config.Config) *gorm.DB {
+func ProvidePostgreDB(cfg *config.Config) *storage.PostgresStore {
 	return storage.NewDB(cfg.Host, cfg.User, cfg.Password, cfg.Db, cfg.PostgresConfig.Port)
 }
 
-func ProvideStorage(db *gorm.DB) *storage.Repo {
-	return storage.NewRepo(db)
-}
-
-func ProvideHandler(cfg *config.Config, repo *storage.Repo) *api.GinServer {
+func ProvideHandler(cfg *config.Config, repo *storage.PostgresStore) *api.GinServer {
 	return api.NewServer(&cfg.ServerConfig, repo)
 }

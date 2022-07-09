@@ -11,7 +11,6 @@ import (
 var ApplicationSet = wire.NewSet(
 	ProvideConfig,
 	ProvidePostgreDB,
-	ProvideStorage,
 	ProvideHandler,
 )
 

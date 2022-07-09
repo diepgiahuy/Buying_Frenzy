@@ -16,7 +16,7 @@ type purchaseRequest struct {
 }
 
 func (s *GinServer) validUser(ctx *gin.Context, userID int64, price float64, tx *gorm.DB) (*model.User, bool) {
-	userData, err := s.store.WithTx(tx).GetUserByID(ctx, userID)
+	userData, err := s.store.WithTx(tx).GetUserStore().GetUserByID(ctx, userID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -26,7 +26,7 @@ func (s *GinServer) validUser(ctx *gin.Context, userID int64, price float64, tx 
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return nil, false
 	}
-	err = s.store.WithTx(tx).DecreaseUserCashBalance(ctx, userData, price)
+	err = s.store.WithTx(tx).GetUserStore().DecreaseUserCashBalance(ctx, userData, price)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return nil, false
@@ -35,7 +35,7 @@ func (s *GinServer) validUser(ctx *gin.Context, userID int64, price float64, tx 
 }
 
 func (s *GinServer) validRestaurant(ctx *gin.Context, restaurantID int64, dishName string, tx *gorm.DB) (*model.Restaurant, float64, bool) {
-	restaurantData, err := s.store.WithTx(tx).GetRestaurantByID(ctx, restaurantID)
+	restaurantData, err := s.store.WithTx(tx).GetRestaurantStore().GetRestaurantByID(ctx, restaurantID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
@@ -47,7 +47,7 @@ func (s *GinServer) validRestaurant(ctx *gin.Context, restaurantID int64, dishNa
 
 	for _, menu := range restaurantData.Menu {
 		if menu.DishName == dishName {
-			err = s.store.WithTx(tx).IncreaseRestaurantCashBalance(ctx, restaurantData, menu.Price)
+			err = s.store.WithTx(tx).GetRestaurantStore().IncreaseRestaurantCashBalance(ctx, restaurantData, menu.Price)
 			if err != nil {
 				return nil, 0, false
 			}
@@ -60,7 +60,7 @@ func (s *GinServer) validRestaurant(ctx *gin.Context, restaurantID int64, dishNa
 }
 
 func (s *GinServer) createPurchaseHistory(ctx *gin.Context, history model.PurchaseHistory, tx *gorm.DB) error {
-	err := s.store.WithTx(tx).AddHistory(ctx, history)
+	err := s.store.WithTx(tx).GetHistoryStore().AddHistory(ctx, history)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return err

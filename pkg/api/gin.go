@@ -20,10 +20,10 @@ const (
 type GinServer struct {
 	config *config.ServerConfig
 	router *gin.Engine
-	store  *storage.Repo
+	store  *storage.PostgresStore
 }
 
-func NewServer(cfg *config.ServerConfig, store *storage.Repo) *GinServer {
+func NewServer(cfg *config.ServerConfig, store *storage.PostgresStore) *GinServer {
 	s := GinServer{}
 	s.store = store
 	s.config = cfg
