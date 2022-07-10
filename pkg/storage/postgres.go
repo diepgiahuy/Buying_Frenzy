@@ -5,6 +5,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	"os"
 )
 
 type PostgresStore struct {
@@ -12,8 +13,10 @@ type PostgresStore struct {
 }
 
 func NewDB(host string, user string, password string, dbName string, port string) *PostgresStore {
-	//dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", host, user, password, dbName, port)
-	dsn := fmt.Sprintf("host=%s dbname=%s port=%s", host, dbName, port)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", host, user, password, dbName, port)
+	if os.Getenv("HEROKU_ENV") == "PROD" {
+		dsn = os.Getenv("DATABASE_URL")
+	}
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)

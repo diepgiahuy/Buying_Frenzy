@@ -2,17 +2,26 @@ package cmd
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/api"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/storage"
 	"github.com/diepgiahuy/Buying_Frenzy/util"
+	"github.com/diepgiahuy/Buying_Frenzy/util/config"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/urfave/cli"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 type ApplicationContext struct {
 	Ctx         context.Context
 	Db          *storage.PostgresStore
+	cfg         *config.Config
 	httpHandler *api.GinServer
 }
 
@@ -22,6 +31,7 @@ func (app *ApplicationContext) Serve() cli.Command {
 		Name:  "serve",
 		Usage: "serve http request",
 		Action: func(c *cli.Context) error {
+			runDBMigration(*app.cfg)
 			run(app)
 			return nil
 		},
@@ -35,7 +45,7 @@ func (app *ApplicationContext) LoadData() cli.Command {
 		Usage: "import json data",
 		Action: func(c *cli.Context) error {
 			loadRestaurantData(app)
-			//loadUserData(app)
+			loadUserData(app)
 			return nil
 		},
 	}
@@ -79,4 +89,23 @@ func loadUserData(app *ApplicationContext) {
 	if err != nil {
 		return
 	}
+}
+func runDBMigration(cfg config.Config) {
+	dbSource := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", cfg.PostgresConfig.User, cfg.PostgresConfig.Password, cfg.PostgresConfig.Host, cfg.PostgresConfig.Port, cfg.PostgresConfig.Db)
+	if os.Getenv("HEROKU_ENV") == "PROD" {
+		dbSource = os.Getenv("DATABASE_URL")
+	}
+	db, err := sql.Open("postgres", dbSource)
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://migration",
+		"postgres", driver)
+	if err != nil {
+		log.Fatal("cannot create new migrate instance:", err)
+	}
+	if err = m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal("failed to run migrate up:", err)
+	}
+
+	log.Println("db migrated successfully")
 }

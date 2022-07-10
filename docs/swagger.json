@@ -1,0 +1,421 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {},
+        "license": {}
+    },
+    "paths": {
+        "/api/v1/purchase": {
+            "post": {
+                "description": "Process a user purchasing a dish from a restaurant",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "createOrder",
+                "parameters": [
+                    {
+                        "description": "Purchase Request with UserId min=0 , RestaurantID min = 1, DishName",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.purchaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"msg\": \"Successfully Purchase Order\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "{\"err\": \"err string\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/restaurants": {
+            "get": {
+                "description": "Get list restaurant open at certain date time",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "listRestaurantsOpen",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Date with format 2006-01-02 15:04:05",
+                        "name": "date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page wants to get",
+                        "name": "pageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of data in page min is 5 and max is 10",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Restaurant"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "{\"err\": \"err string\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/restaurants/dish/{name}": {
+            "get": {
+                "description": "Search for dish by name, ranked by relevance to search term.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "listDishByName",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page wants to get",
+                        "name": "pageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of data in page min is 5 and max is 10",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Dish Name",
+                        "name": "restaurant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Menu"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "{\"err\": \"err string\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/restaurants/top-list-with-price": {
+            "get": {
+                "description": "List top y restaurants that have more or less than x number of dishes within a price range, ranked alphabetically.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "listRestaurantsWithComparison",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Param to get more of less dish to compare, With 0 is more and 1 is less otherwise throw error",
+                        "name": "comparison",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Higher price min = 0 and greater than Lower Price",
+                        "name": "highPrice",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Lower price min = 0",
+                        "name": "lowPrice",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Param to find number of dishes in restaurant within a price range",
+                        "name": "numDishes",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "For get Top Y restaurants",
+                        "name": "topList",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Restaurant"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "{\"err\": \"err string\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/restaurants/{name}": {
+            "get": {
+                "description": "Search for restaurants by name, ranked by relevance to search term.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "listRestaurantsByName",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page wants to get",
+                        "name": "pageID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of data in page min is 5 and max is 10",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Restaurant Name",
+                        "name": "restaurant",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Restaurant"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "{\"err\": \"err string\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.listRestaurantRequest": {
+            "type": "object",
+            "required": [
+                "pageID",
+                "pageSize"
+            ],
+            "properties": {
+                "date": {
+                    "description": "Date with format 2006-01-02 15:04:05",
+                    "type": "string"
+                },
+                "pageID": {
+                    "description": "Page wants to get",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "Number of data in page min is 5 and max is 10",
+                    "type": "integer"
+                }
+            }
+        },
+        "api.listRestaurantWithDishesRequest": {
+            "type": "object",
+            "required": [
+                "comparison",
+                "highPrice",
+                "lowPrice",
+                "numDishes",
+                "topList"
+            ],
+            "properties": {
+                "comparison": {
+                    "description": "Param to get more of less dish to compare, With 0 is more and 1 is less otherwise throw error",
+                    "type": "integer"
+                },
+                "highPrice": {
+                    "description": "Higher price min = 0 and greater than Lower Price",
+                    "type": "number"
+                },
+                "lowPrice": {
+                    "description": "Lower price min = 0",
+                    "type": "number"
+                },
+                "numDishes": {
+                    "description": "Param to find number of dishes in restaurant within a price range",
+                    "type": "integer"
+                },
+                "topList": {
+                    "description": "For get Top Y restaurants",
+                    "type": "integer"
+                }
+            }
+        },
+        "api.paginationRequest": {
+            "type": "object",
+            "required": [
+                "pageID",
+                "pageSize"
+            ],
+            "properties": {
+                "pageID": {
+                    "description": "Page wants to get",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "Number of data in page min is 5 and max is 10",
+                    "type": "integer"
+                }
+            }
+        },
+        "api.purchaseRequest": {
+            "type": "object",
+            "required": [
+                "dish_name",
+                "restaurant_id",
+                "user_id"
+            ],
+            "properties": {
+                "dish_name": {
+                    "type": "string"
+                },
+                "restaurant_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.Menu": {
+            "type": "object",
+            "properties": {
+                "dishName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "restaurantID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.OperationHour": {
+            "type": "object",
+            "properties": {
+                "closeHour": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "day": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "openHour": {
+                    "type": "string"
+                },
+                "restaurantID": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Restaurant": {
+            "type": "object",
+            "properties": {
+                "cashBalance": {
+                    "type": "number"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "menu": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Menu"
+                    }
+                },
+                "operationHour": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.OperationHour"
+                    }
+                },
+                "restaurantName": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

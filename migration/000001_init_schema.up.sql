@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS "ops_hour" (
             REFERENCES restaurant(id)
 );
 
-CREATE EXTENSION pg_trgm;
-CREATE EXTENSION btree_gin;
+CREATE EXTENSION IF NOT EXISTS  pg_trgm;
+CREATE EXTENSION IF NOT EXISTS  btree_gin;
 
 CREATE INDEX idx_restaurant_name ON "restaurant" USING gin ("name");
 

@@ -63,7 +63,7 @@ func (r *RestaurantStore) GetRestaurantWithDate(ctx context.Context, date string
 func (r *RestaurantStore) GetRestaurantWithCompareMore(ctx context.Context, lowPrice float32, highPrice float32, numDishes int, topList int) ([]model.Restaurant, error) {
 
 	var res []model.Restaurant
-	if result := r.Db.Debug().WithContext(ctx).Raw("SELECT * FROM  restaurant"+
+	if result := r.Db.WithContext(ctx).Raw("SELECT * FROM  restaurant"+
 		"\nwhere id IN ("+
 		"\n    Select restaurant_id"+
 		"\n    from ("+
@@ -112,15 +112,17 @@ func (r *RestaurantStore) GetRestaurantWithCompareLess(ctx context.Context, lowP
 func (r *RestaurantStore) GetRestaurantByTerm(ctx context.Context, term string, offset int, pageSize int) ([]model.Restaurant, error) {
 
 	var res []model.Restaurant
-	if result := r.Db.WithContext(ctx).Raw("SELECT * FROM ("+
-		"\n         SELECT DISTINCT name"+
-		"\n         FROM restaurant"+
-		"\n         WHERE name ILIKE ?"+
-		"\n     ) alias"+
-		"\n     ORDER BY name ILIKE ? DESC, name"+
-		"\n 	OFFSET ?"+
-		"\n 	LIMIT  ?", "%"+term+"%", term+"%", offset, pageSize).Preload("OperationHour").
-		Preload("Menu").Find(&res); result.Error != nil {
+	if result := r.Db.WithContext(ctx).Raw(
+		"SELECT * FROM ("+
+			"\n         SELECT DISTINCT name,id,cash_balance"+
+			"\n         FROM restaurant"+
+			"\n         WHERE name ILIKE ?"+
+			"\n     ) alias"+
+			"\n     ORDER BY name ILIKE ? DESC, name"+
+			"\n 	OFFSET ?"+
+			"\n 	LIMIT  ?", "%"+term+"%", term+"%", offset, pageSize).Preload("OperationHour").Preload("Menu").
+		Joins("Inner join ops_hour on ops_hour.restaurant_id = restaurant.id").
+		Joins("Inner join menu on menu.restaurant_id = restaurant.id").Find(&res); result.Error != nil {
 		return nil, result.Error
 	}
 	return res, nil

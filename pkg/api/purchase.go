@@ -68,6 +68,15 @@ func (s *GinServer) createPurchaseHistory(ctx *gin.Context, history model.Purcha
 	return nil
 }
 
+// createOrder
+// @Summary      createOrder
+// @Description  Process a user purchasing a dish from a restaurant
+// @Accept       json
+// @Produce      json
+// @Param        data  body      purchaseRequest  true  "Purchase Request with UserId min=0 , RestaurantID min = 1"
+// @Success      200   {string}  string "{"msg": "Successfully Purchase Order"}"
+// @Failure      400   {string}  string "{"err": "err string"}"
+// @Router       /api/v1/purchase [POST]
 func (s *GinServer) createOrder(ctx *gin.Context) {
 	var req purchaseRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {

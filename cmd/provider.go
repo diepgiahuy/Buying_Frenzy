@@ -13,7 +13,7 @@ func ProvideConfig() (*config.Config, error) {
 	cfg := config.Config{}
 	err := godotenv.Load("./util/config/dev.env")
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Fatalf("Error loading .env file %s", err)
 	}
 	err = envconfig.Process("", &cfg)
 	if err != nil {

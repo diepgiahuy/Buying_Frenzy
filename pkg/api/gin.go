@@ -1,11 +1,15 @@
 package api
 
 import (
+	"github.com/diepgiahuy/Buying_Frenzy/docs"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/api/middleware"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/storage"
 	"github.com/diepgiahuy/Buying_Frenzy/util/config"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
+	"os"
 )
 
 type GinServerMode int
@@ -23,6 +27,15 @@ type GinServer struct {
 	store  *storage.PostgresStore
 }
 
+func initSwagger() {
+	// programmatically set swagger info
+	docs.SwaggerInfo.Title = "Buying Frenzy API"
+	docs.SwaggerInfo.Version = "2.0"
+	docs.SwaggerInfo.Description = "Backend service and a database for a food delivery platform"
+	docs.SwaggerInfo.Host = ""
+	docs.SwaggerInfo.BasePath = "/api/v1"
+}
+
 func NewServer(cfg *config.ServerConfig, store *storage.PostgresStore) *GinServer {
 	s := GinServer{}
 	s.store = store
@@ -37,6 +50,7 @@ func NewServer(cfg *config.ServerConfig, store *storage.PostgresStore) *GinServe
 		gin.SetMode(gin.ReleaseMode)
 	}
 	s.setupRouter()
+	initSwagger()
 	return &s
 }
 
@@ -56,16 +70,19 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// setupRouter
 func (s *GinServer) setupRouter() {
 	router := gin.Default()
 	router.Use(gin.Recovery())
 	router.Use(CORSMiddleware())
 	router.Use(gin.Logger())
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	v1 := router.Group("api/v1")
 	v1.GET("/restaurants", s.listRestaurantsOpen)
 	v1.GET("/restaurants/top-list-with-price", s.listRestaurantsWithComparison)
 	v1.GET("/restaurants/:name", s.listRestaurantsByName)
-	v1.GET("/restaurants/dish/:name", s.listRestaurantsByDishName)
+	v1.GET("/restaurants/dish/:name", s.listDishByName)
 	v1.POST("/purchase", middleware.DBTransactionMiddleware(s.store.Db), s.createOrder)
 
 	s.router = router
@@ -73,7 +90,12 @@ func (s *GinServer) setupRouter() {
 
 // Start the server
 func (s GinServer) Start() {
-	err := s.router.Run(":" + s.config.Port)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = s.config.Port // Default port if not specified
+	}
+	err := s.router.Run(":" + port)
 	if err != nil {
 		log.Fatal("Error during start server: ", err)
 	}

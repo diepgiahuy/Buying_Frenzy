@@ -23,6 +23,7 @@ func InitApplication(ctx context.Context) (*ApplicationContext, func(), error) {
 	applicationContext := &ApplicationContext{
 		Ctx:         ctx,
 		Db:          postgresStore,
+		cfg:         config,
 		httpHandler: ginServer,
 	}
 	return applicationContext, func() {
