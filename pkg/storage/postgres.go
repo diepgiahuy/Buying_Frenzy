@@ -26,7 +26,6 @@ func NewDB(host string, user string, password string, dbName string, port string
 
 type DbStore interface {
 	GetRestaurantStore() *RestaurantStore
-	GetMenuStore() *MenuStore
 	GetHistoryStore() *HistoryStore
 	GetUserStore() *UserStore
 }
@@ -34,9 +33,7 @@ type DbStore interface {
 func (p *PostgresStore) GetRestaurantStore() *RestaurantStore {
 	return NewRestaurantStore(p.Db)
 }
-func (p *PostgresStore) GetMenuStore() *MenuStore {
-	return NewMenuStore(p.Db)
-}
+
 func (p *PostgresStore) GetHistoryStore() *HistoryStore {
 	return NewHistoryStore(p.Db)
 }

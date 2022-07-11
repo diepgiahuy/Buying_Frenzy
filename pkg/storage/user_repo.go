@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"errors"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/model"
 	"gorm.io/gorm"
 )
@@ -17,15 +16,14 @@ func NewUserStore(db *gorm.DB) *UserStore {
 	}
 }
 
-func (r *UserStore) AddUser(ctx context.Context, user []model.User) error {
+func (r *UserStore) AddUser(ctx context.Context, user model.User) (*model.User, error) {
 	if result := r.Db.WithContext(ctx).Create(&user); result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
-	return nil
+	return &user, nil
 }
 
 func (r *UserStore) AddUserWithBatches(ctx context.Context, user []model.User) error {
-
 	if result := r.Db.WithContext(ctx).CreateInBatches(&user, 100); result.Error != nil {
 		return result.Error
 	}
@@ -35,12 +33,14 @@ func (r *UserStore) AddUserWithBatches(ctx context.Context, user []model.User) e
 func (r *UserStore) GetUserByID(ctx context.Context, userID int64) (*model.User, error) {
 	var userData *model.User
 	if result := r.Db.WithContext(ctx).First(&userData, userID); result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, gorm.ErrRecordNotFound
-		}
 		return nil, result.Error
 	}
 	return userData, nil
+}
+
+func (r *UserStore) DeleteUserByID(ctx context.Context, userID int64) error {
+	result := r.Db.WithContext(ctx).Delete(&model.User{}, userID)
+	return result.Error
 }
 
 func (r *UserStore) DecreaseUserCashBalance(ctx context.Context, user *model.User, cash float64) error {

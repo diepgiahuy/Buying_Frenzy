@@ -34,9 +34,9 @@ CREATE TABLE IF NOT EXISTS "ops_hour" (
 CREATE EXTENSION IF NOT EXISTS  pg_trgm;
 CREATE EXTENSION IF NOT EXISTS  btree_gin;
 
-CREATE INDEX idx_restaurant_name ON "restaurant" USING gin ("name");
+CREATE INDEX IF NOT EXISTS idx_restaurant_name ON "restaurant" USING gin ("name");
 
-CREATE INDEX idx_menu_name ON "menu" USING gin ("dish_name");
+CREATE INDEX IF NOT EXISTS idx_menu_name ON "menu" USING gin ("dish_name");
 
-CREATE INDEX idx_ops_hour_date_open_hour_close_hour On "ops_hour" ("day","open_hour","close_hour");
+CREATE INDEX IF NOT EXISTS idx_ops_hour_date_open_hour_close_hour On "ops_hour" ("day","open_hour","close_hour");
 

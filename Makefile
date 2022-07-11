@@ -1,4 +1,4 @@
-.PHONY: build run deploy test test-report swagger migrate-up migrate-down
+.PHONY: build run deploy test test-report swagger migrate-up migrate-down wire load-data
 APP_NAME=buying-frenzy
 POSTGRESQL_URL=postgresql://postgres:secret@localhost:5432/buying_frenzy?sslmode=disable
 build:
@@ -20,5 +20,5 @@ wire:
 migrate-up:
 	migrate -path  migration  -database ${POSTGRESQL_URL} -verbose up
 migrate-down:
-	cd app && migrate -path  migration  -database ${POSTGRESQL_URL} -verbose down
+	migrate -path  migration  -database ${POSTGRESQL_URL} -verbose down
 all: build deploy test

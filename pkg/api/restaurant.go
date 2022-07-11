@@ -43,7 +43,7 @@ func (s *GinServer) listRestaurantsOpen(ctx *gin.Context) {
 		return
 	}
 	offset := (req.PageID - 1) * req.PageSize
-	res, err := s.store.GetRestaurantStore().GetRestaurantWithDate(ctx, req.Date, offset, req.PageSize)
+	res, err := s.store.GetRestaurantStore().GetRestaurantByDate(ctx, req.Date, offset, req.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

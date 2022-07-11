@@ -6,8 +6,8 @@ import (
 )
 
 type PurchaseHistory struct {
-	ID                uint    `gorm:"primaryKey"`
-	UserId            *uint   `gorm:"column:user_id"`
+	ID                int64   `gorm:"primaryKey"`
+	UserId            *int64  `gorm:"column:user_id"`
 	DishName          string  `json:"dishName"`
 	RestaurantName    string  `json:"restaurantName"`
 	TransactionAmount float64 `json:"transactionAmount"`
@@ -22,5 +22,6 @@ func (p PurchaseHistory) TableName() string {
 }
 
 type PurchaseHistoryStore interface {
-	AddHistory(ctx context.Context, history PurchaseHistory) error
+	AddHistory(ctx context.Context, history PurchaseHistory) (*PurchaseHistory, error)
+	DeleteHistoryByID(ctx context.Context, historyId int64) error
 }

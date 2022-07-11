@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/model"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -10,7 +11,7 @@ import (
 )
 
 type purchaseRequest struct {
-	UserID       *int64 `json:"user_id" binding:"required,min=0"`
+	UserID       *int64 `json:"user_id" binding:"required,min=0,numeric"`
 	RestaurantID int64  `json:"restaurant_id" binding:"required,min=1"`
 	DishName     string `json:"dish_name" binding:"required"`
 }
@@ -24,6 +25,10 @@ func (s *GinServer) validUser(ctx *gin.Context, userID int64, price float64, tx 
 		}
 
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return nil, false
+	}
+	if userData.CashBalance < price {
+		ctx.JSON(http.StatusInternalServerError, errors.New(fmt.Sprintf("cashBalance is not enough , userId %d", userID)))
 		return nil, false
 	}
 	err = s.store.WithTx(tx).GetUserStore().DecreaseUserCashBalance(ctx, userData, price)
@@ -60,7 +65,7 @@ func (s *GinServer) validRestaurant(ctx *gin.Context, restaurantID int64, dishNa
 }
 
 func (s *GinServer) createPurchaseHistory(ctx *gin.Context, history model.PurchaseHistory, tx *gorm.DB) error {
-	err := s.store.WithTx(tx).GetHistoryStore().AddHistory(ctx, history)
+	_, err := s.store.WithTx(tx).GetHistoryStore().AddHistory(ctx, history)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return err

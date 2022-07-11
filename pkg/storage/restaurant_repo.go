@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"errors"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/model"
 	"golang.org/x/net/context"
 	"gorm.io/gorm"
@@ -19,11 +18,11 @@ func NewRestaurantStore(db *gorm.DB) *RestaurantStore {
 	}
 }
 
-func (r *RestaurantStore) AddRestaurant(ctx context.Context, restaurant model.Restaurant) error {
+func (r *RestaurantStore) AddRestaurant(ctx context.Context, restaurant model.Restaurant) (*model.Restaurant, error) {
 	if result := r.Db.WithContext(ctx).Create(&restaurant); result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
-	return nil
+	return &restaurant, nil
 }
 
 func (r *RestaurantStore) AddRestaurantWithBatches(ctx context.Context, restaurant []model.Restaurant) error {
@@ -43,7 +42,7 @@ var dayParse = map[string]string{
 	"Sunday":    "Sun",
 }
 
-func (r *RestaurantStore) GetRestaurantWithDate(ctx context.Context, date string, offset int, pageSize int) ([]model.Restaurant, error) {
+func (r *RestaurantStore) GetRestaurantByDate(ctx context.Context, date string, offset int, pageSize int) ([]model.Restaurant, error) {
 	parse, err := time.Parse("2006-01-02 15:04:05", date)
 	if err != nil {
 		return nil, err
@@ -151,9 +150,6 @@ func (r *RestaurantStore) GetRestaurantByID(ctx context.Context, restaurantID in
 
 	var restaurantData *model.Restaurant
 	if result := r.Db.WithContext(ctx).Preload("Menu").First(&restaurantData, restaurantID); result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, gorm.ErrRecordNotFound
-		}
 		return nil, result.Error
 	}
 	return restaurantData, nil
@@ -165,4 +161,9 @@ func (r *RestaurantStore) IncreaseRestaurantCashBalance(ctx context.Context, res
 		return result.Error
 	}
 	return nil
+}
+
+func (r *RestaurantStore) DeleteRestaurantByID(ctx context.Context, restaurant int64) error {
+	result := r.Db.WithContext(ctx).Delete(&model.Restaurant{}, restaurant)
+	return result.Error
 }
