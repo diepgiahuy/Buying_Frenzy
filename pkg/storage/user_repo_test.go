@@ -12,7 +12,7 @@ import (
 
 func creatRandomUser() model.User {
 	return model.User{
-		ID:          util.RandomInt(1000, 2000),
+		ID:          util.RandomInt(8000, 20000),
 		CashBalance: util.RandomMoney(),
 		Name:        util.RandomOwner(),
 	}
@@ -47,7 +47,7 @@ func TestDeleteUserById(t *testing.T) {
 	account1 := CreateUserRecord(t)
 	err := userStore.DeleteUserByID(context.Background(), *account1.ID)
 	require.NoError(t, err)
-	account2, err := userStore.GetUserByID(context.Background(), *account1.ID)
+	account2, err := userStore.GetByID(context.Background(), *account1.ID)
 	require.Error(t, err)
 	require.EqualError(t, err, gorm.ErrRecordNotFound.Error())
 	require.Empty(t, account2)
@@ -66,7 +66,7 @@ func TestGetUserById(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := userStore.GetUserByID(context.Background(), *tt.user.ID)
+			got, err := userStore.GetByID(context.Background(), *tt.user.ID)
 			if tt.wantErr != nil {
 				require.Error(t, err)
 				require.EqualError(t, err, gorm.ErrRecordNotFound.Error())
@@ -97,7 +97,7 @@ func TestAddUserWithBatches(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := userStore.AddUserWithBatches(context.Background(), users)
+			err := userStore.AddWithBatches(context.Background(), users)
 			if tt.wantErr != nil {
 				require.Error(t, err)
 				require.EqualError(t, err, tt.wantErr.Error())
@@ -106,6 +106,8 @@ func TestAddUserWithBatches(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
+	err := userStore.DeleteUserByID(context.Background(), *user1.ID)
+	require.NoError(t, err)
 }
 
 func TestDecreaseUserCashBalance(t *testing.T) {
@@ -122,14 +124,14 @@ func TestDecreaseUserCashBalance(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr != nil {
-				err := userStore.DecreaseUserCashBalance(context.Background(), nil, cash)
+				err := userStore.DecreaseCashBalance(context.Background(), nil, cash)
 				require.Error(t, err)
 				require.EqualError(t, err, tt.wantErr.Error())
 				return
 			}
-			err := userStore.DecreaseUserCashBalance(context.Background(), &tt.user, cash)
+			err := userStore.DecreaseCashBalance(context.Background(), &tt.user, cash)
 			require.NoError(t, err)
-			got, err := userStore.GetUserByID(context.Background(), *tt.user.ID)
+			got, err := userStore.GetByID(context.Background(), *tt.user.ID)
 			require.NoError(t, err)
 			require.NotEmpty(t, got)
 			require.Equal(t, tt.user.CashBalance-cash, got.CashBalance)

@@ -6,15 +6,15 @@ import (
 	"net/http"
 )
 
-type listRestaurantRequest struct {
+type listRestaurantRequestByDate struct {
 	Date string `form:"date" binding:"datetime=2006-01-02 15:04:05"` // Date with format 2006-01-02 15:04:05
 	paginationRequest
 }
 
 type listRestaurantWithDishesRequest struct {
 	TopList    *int     `form:"top_list" binding:"required,min=0"`                              // For get Top Y restaurants
-	HighPrice  *float32 `form:"high_price,omitempty" binding:"required,min=0,gtfield=LowPrice"` // Higher price min = 0 and greater than Lower Price
-	LowPrice   *float32 `form:"low_price,omitempty" binding:"required,min=0"`                   // Lower price min = 0
+	HighPrice  *float64 `form:"high_price,omitempty" binding:"required,min=0,gtfield=LowPrice"` // Higher price min = 0 and greater than Lower Price
+	LowPrice   *float64 `form:"low_price,omitempty" binding:"required,min=0"`                   // Lower price min = 0
 	Comparison *int     `form:"comparison,omitempty" binding:"required,min=0,max=1"`            // Param to get more of less dish to compare, With 0 is more and 1 is less otherwise throw error
 	NumDishes  *int     `form:"num_dishes" binding:"required,min=0"`                            // Param to find number of dishes in restaurant within a price range
 }
@@ -32,18 +32,18 @@ type paginationRequest struct {
 // @Summary      listRestaurantsOpen
 // @Description  Get list restaurant open at certain date time
 // @Produce      json
-// @Param        restaurant  query     listRestaurantRequest true "listRestaurantsOpen"
+// @Param        restaurant  query     listRestaurantRequestByDate true "listRestaurantsOpen"
 // @Success      200  	     {object}  []model.Restaurant
 // @Failure      400 		 {string}  string "{"err": "err string"}"
 // @Router       /api/v1/restaurants [get]
 func (s *GinServer) listRestaurantsOpen(ctx *gin.Context) {
-	var req listRestaurantRequest
+	var req listRestaurantRequestByDate
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	offset := (req.PageID - 1) * req.PageSize
-	res, err := s.store.GetRestaurantStore().GetRestaurantByDate(ctx, req.Date, offset, req.PageSize)
+	res, err := s.store.GetRestaurantStore().GetByDate(ctx, req.Date, offset, req.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -68,9 +68,9 @@ func (s *GinServer) listRestaurantsWithComparison(ctx *gin.Context) {
 	var err error
 	var res []model.Restaurant
 	if *req.Comparison == 0 {
-		res, err = s.store.GetRestaurantStore().GetRestaurantWithCompareMore(ctx, *req.LowPrice, *req.HighPrice, *req.NumDishes, *req.TopList)
+		res, err = s.store.GetRestaurantStore().GetByCompareGreaterDish(ctx, *req.LowPrice, *req.HighPrice, *req.NumDishes, *req.TopList)
 	} else {
-		res, err = s.store.GetRestaurantStore().GetRestaurantWithCompareLess(ctx, *req.LowPrice, *req.HighPrice, *req.NumDishes, *req.TopList)
+		res, err = s.store.GetRestaurantStore().GetByCompareLesserDish(ctx, *req.LowPrice, *req.HighPrice, *req.NumDishes, *req.TopList)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -100,7 +100,7 @@ func (s *GinServer) listRestaurantsByName(ctx *gin.Context) {
 		return
 	}
 	offset := (req.PageID - 1) * req.PageSize
-	res, err := s.store.GetRestaurantStore().GetRestaurantByTerm(ctx, uri.Name, offset, req.PageSize)
+	res, err := s.store.GetRestaurantStore().GetByTerm(ctx, uri.Name, offset, req.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -129,7 +129,7 @@ func (s *GinServer) listDishByName(ctx *gin.Context) {
 		return
 	}
 	offset := (req.PageID - 1) * req.PageSize
-	res, err := s.store.GetRestaurantStore().GetRestaurantByDishTerm(ctx, uri.Name, offset, req.PageSize)
+	res, err := s.store.GetMenuStore().GetByDishTerm(ctx, uri.Name, offset, req.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

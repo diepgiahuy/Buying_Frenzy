@@ -12,9 +12,9 @@ type User struct {
 }
 
 type UserStore interface {
-	AddUserWithBatches(ctx context.Context, user []User) error
-	GetUserByID(ctx context.Context, userID int64) (*User, error)
-	DecreaseUserCashBalance(ctx context.Context, user *User, cash float64) error
+	AddWithBatches(ctx context.Context, user []User) error
+	GetByID(ctx context.Context, userID int64) (*User, error)
+	DecreaseCashBalance(ctx context.Context, user *User, cash float64) error
 }
 
 // TableName overrides the table name

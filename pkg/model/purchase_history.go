@@ -22,6 +22,6 @@ func (p PurchaseHistory) TableName() string {
 }
 
 type PurchaseHistoryStore interface {
-	AddHistory(ctx context.Context, history PurchaseHistory) (*PurchaseHistory, error)
-	DeleteHistoryByID(ctx context.Context, historyId int64) error
+	Add(ctx context.Context, history PurchaseHistory) (*PurchaseHistory, error)
+	DeleteByID(ctx context.Context, historyId int64) error
 }

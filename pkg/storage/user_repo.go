@@ -23,14 +23,14 @@ func (r *UserStore) AddUser(ctx context.Context, user model.User) (*model.User, 
 	return &user, nil
 }
 
-func (r *UserStore) AddUserWithBatches(ctx context.Context, user []model.User) error {
+func (r *UserStore) AddWithBatches(ctx context.Context, user []model.User) error {
 	if result := r.Db.WithContext(ctx).CreateInBatches(&user, 100); result.Error != nil {
 		return result.Error
 	}
 	return nil
 }
 
-func (r *UserStore) GetUserByID(ctx context.Context, userID int64) (*model.User, error) {
+func (r *UserStore) GetByID(ctx context.Context, userID int64) (*model.User, error) {
 	var userData *model.User
 	if result := r.Db.WithContext(ctx).First(&userData, userID); result.Error != nil {
 		return nil, result.Error
@@ -43,7 +43,7 @@ func (r *UserStore) DeleteUserByID(ctx context.Context, userID int64) error {
 	return result.Error
 }
 
-func (r *UserStore) DecreaseUserCashBalance(ctx context.Context, user *model.User, cash float64) error {
+func (r *UserStore) DecreaseCashBalance(ctx context.Context, user *model.User, cash float64) error {
 	if result := r.Db.WithContext(ctx).Model(&user).Update("cash_balance", gorm.Expr("cash_balance - ?", cash)); result.Error != nil {
 		return result.Error
 	}

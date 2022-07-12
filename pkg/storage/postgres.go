@@ -28,6 +28,8 @@ type DbStore interface {
 	GetRestaurantStore() *RestaurantStore
 	GetHistoryStore() *HistoryStore
 	GetUserStore() *UserStore
+	GetMenuStore() *MenuStore
+	GetOperationHourStore() *OperationHourStore
 }
 
 func (p *PostgresStore) GetRestaurantStore() *RestaurantStore {
@@ -37,8 +39,18 @@ func (p *PostgresStore) GetRestaurantStore() *RestaurantStore {
 func (p *PostgresStore) GetHistoryStore() *HistoryStore {
 	return NewHistoryStore(p.Db)
 }
+
+func (p *PostgresStore) GetMenuStore() *MenuStore {
+	return NewMenuStore(p.Db)
+}
+
 func (p *PostgresStore) GetUserStore() *UserStore {
 	return NewUserStore(p.Db)
+}
+
+func (p *PostgresStore) GetOperationHourStore() *OperationHourStore {
+
+	return NewOperationHourStore(p.Db)
 }
 
 // WithTx enables repository with transaction

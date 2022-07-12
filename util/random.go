@@ -37,7 +37,7 @@ func RandomOwner() string {
 
 // RandomMoney generates a random amount of money
 func RandomMoney() float64 {
-	return randomFloat(0, 1000)
+	return randomFloat(0, 500)
 }
 
 // RandomInt generates a random integer between min and max

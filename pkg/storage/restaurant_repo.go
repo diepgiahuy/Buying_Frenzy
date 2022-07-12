@@ -1,10 +1,10 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/model"
 	"golang.org/x/net/context"
 	"gorm.io/gorm"
-	"strconv"
 	"time"
 )
 
@@ -18,21 +18,21 @@ func NewRestaurantStore(db *gorm.DB) *RestaurantStore {
 	}
 }
 
-func (r *RestaurantStore) AddRestaurant(ctx context.Context, restaurant model.Restaurant) (*model.Restaurant, error) {
+func (r *RestaurantStore) Add(ctx context.Context, restaurant model.Restaurant) (*model.Restaurant, error) {
 	if result := r.Db.WithContext(ctx).Create(&restaurant); result.Error != nil {
 		return nil, result.Error
 	}
 	return &restaurant, nil
 }
 
-func (r *RestaurantStore) AddRestaurantWithBatches(ctx context.Context, restaurant []model.Restaurant) error {
+func (r *RestaurantStore) AddWithBatches(ctx context.Context, restaurant []model.Restaurant) error {
 	if result := r.Db.WithContext(ctx).CreateInBatches(&restaurant, 100); result.Error != nil {
 		return result.Error
 	}
 	return nil
 }
 
-var dayParse = map[string]string{
+var DayParse = map[string]string{
 	"Monday":    "Mon",
 	"Tuesday":   "Tues",
 	"Wednesday": "Weds",
@@ -42,24 +42,24 @@ var dayParse = map[string]string{
 	"Sunday":    "Sun",
 }
 
-func (r *RestaurantStore) GetRestaurantByDate(ctx context.Context, date string, offset int, pageSize int) ([]model.Restaurant, error) {
+func (r *RestaurantStore) GetByDate(ctx context.Context, date string, offset int, pageSize int) ([]model.Restaurant, error) {
 	parse, err := time.Parse("2006-01-02 15:04:05", date)
 	if err != nil {
 		return nil, err
 	}
-	day := dayParse[parse.Weekday().String()]
-	times := strconv.Itoa(parse.Hour()) + ":" + strconv.Itoa(parse.Minute()) + ":00"
+	day := DayParse[parse.Weekday().String()]
+	times := fmt.Sprintf("%02d:%02d:00", parse.Hour(), parse.Minute())
 	var res []model.Restaurant
 	if result := r.Db.WithContext(ctx).Preload("OperationHour").Preload("Menu").
 		Joins("Inner join ops_hour on ops_hour.restaurant_id = restaurant.id").
 		Joins("Inner join menu on menu.restaurant_id = restaurant.id").
-		Where("open_hour = ? and day = ? ", times, day).Offset(offset).Limit(pageSize).Find(&res); result.Error != nil {
+		Where("open_hour = ? and day = ?", times, day).Group("restaurant.id").Offset(offset).Limit(pageSize).Find(&res); result.Error != nil {
 		return nil, result.Error
 	}
 	return res, nil
 }
 
-func (r *RestaurantStore) GetRestaurantWithCompareMore(ctx context.Context, lowPrice float32, highPrice float32, numDishes int, topList int) ([]model.Restaurant, error) {
+func (r *RestaurantStore) GetByCompareGreaterDish(ctx context.Context, lowPrice float64, highPrice float64, numDishes int, topList int) ([]model.Restaurant, error) {
 
 	var res []model.Restaurant
 	if result := r.Db.WithContext(ctx).Raw("SELECT * FROM  restaurant"+
@@ -83,7 +83,7 @@ func (r *RestaurantStore) GetRestaurantWithCompareMore(ctx context.Context, lowP
 	return res, nil
 }
 
-func (r *RestaurantStore) GetRestaurantWithCompareLess(ctx context.Context, lowPrice float32, highPrice float32, numDishes int, topList int) ([]model.Restaurant, error) {
+func (r *RestaurantStore) GetByCompareLesserDish(ctx context.Context, lowPrice float64, highPrice float64, numDishes int, topList int) ([]model.Restaurant, error) {
 
 	var res []model.Restaurant
 	if result := r.Db.WithContext(ctx).Raw("SELECT * FROM  restaurant"+
@@ -108,7 +108,7 @@ func (r *RestaurantStore) GetRestaurantWithCompareLess(ctx context.Context, lowP
 	return res, nil
 }
 
-func (r *RestaurantStore) GetRestaurantByTerm(ctx context.Context, term string, offset int, pageSize int) ([]model.Restaurant, error) {
+func (r *RestaurantStore) GetByTerm(ctx context.Context, term string, offset int, pageSize int) ([]model.Restaurant, error) {
 
 	var res []model.Restaurant
 	if result := r.Db.WithContext(ctx).Raw(
@@ -127,26 +127,7 @@ func (r *RestaurantStore) GetRestaurantByTerm(ctx context.Context, term string, 
 	return res, nil
 }
 
-func (r *RestaurantStore) GetRestaurantByDishTerm(ctx context.Context, term string, offset int, pageSize int) ([]model.Menu, error) {
-
-	var res []model.Menu
-	if result := r.Db.WithContext(ctx).Raw("SELECT * from menu "+
-		"\n INNER JOIN ("+
-		"\n    SELECT * FROM ("+
-		"\n             SELECT DISTINCT dish_name, id"+
-		"\n             FROM menu"+
-		"\n             WHERE dish_name ILIKE ?"+
-		"\n         ) alias"+
-		"\n    ORDER BY dish_name ILIKE ? DESC, dish_name"+
-		"\n) as Alias on Alias.id = menu.id"+
-		"\n 	OFFSET ?"+
-		"\n 	LIMIT  ?", "%"+term+"%", term+"%", offset, pageSize).Find(&res); result.Error != nil {
-		return nil, result.Error
-	}
-	return res, nil
-}
-
-func (r *RestaurantStore) GetRestaurantByID(ctx context.Context, restaurantID int64) (*model.Restaurant, error) {
+func (r *RestaurantStore) GetByID(ctx context.Context, restaurantID int64) (*model.Restaurant, error) {
 
 	var restaurantData *model.Restaurant
 	if result := r.Db.WithContext(ctx).Preload("Menu").First(&restaurantData, restaurantID); result.Error != nil {
@@ -155,7 +136,7 @@ func (r *RestaurantStore) GetRestaurantByID(ctx context.Context, restaurantID in
 	return restaurantData, nil
 }
 
-func (r *RestaurantStore) IncreaseRestaurantCashBalance(ctx context.Context, restaurant *model.Restaurant, cash float64) error {
+func (r *RestaurantStore) IncreaseCashBalance(ctx context.Context, restaurant *model.Restaurant, cash float64) error {
 
 	if result := r.Db.WithContext(ctx).Model(&restaurant).Update("cash_balance", gorm.Expr("cash_balance + ?", cash)); result.Error != nil {
 		return result.Error
@@ -163,7 +144,7 @@ func (r *RestaurantStore) IncreaseRestaurantCashBalance(ctx context.Context, res
 	return nil
 }
 
-func (r *RestaurantStore) DeleteRestaurantByID(ctx context.Context, restaurant int64) error {
+func (r *RestaurantStore) DeleteByID(ctx context.Context, restaurant int64) error {
 	result := r.Db.WithContext(ctx).Delete(&model.Restaurant{}, restaurant)
 	return result.Error
 }
