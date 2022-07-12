@@ -16,8 +16,8 @@ type OperationHour struct {
 }
 
 type OperationHourStore interface {
-	Add(ctx context.Context, restaurant []Restaurant) error
-	DeleteByID(ctx context.Context, menu []Menu) error
+	Add(ctx context.Context, opsHour OperationHour) (*OperationHour, error)
+	DeleteByID(ctx context.Context, opsHourID int64) error
 }
 
 // TableName overrides the table name
