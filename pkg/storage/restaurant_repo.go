@@ -5,6 +5,7 @@ import (
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/model"
 	"golang.org/x/net/context"
 	"gorm.io/gorm"
+	"log"
 	"time"
 )
 
@@ -16,6 +17,16 @@ func NewRestaurantStore(db *gorm.DB) *RestaurantStore {
 	return &RestaurantStore{
 		Db: db,
 	}
+}
+
+// WithRestaurantTx enables repository with transaction
+func (r *RestaurantStore) WithRestaurantTx(txHandle *gorm.DB) *RestaurantStore {
+	if txHandle == nil {
+		log.Print("Transaction Database not found")
+		return r
+	}
+	r.Db = txHandle
+	return r
 }
 
 func (r *RestaurantStore) Add(ctx context.Context, restaurant model.Restaurant) (*model.Restaurant, error) {

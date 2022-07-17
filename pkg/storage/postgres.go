@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 	"os"
 )
 
@@ -51,14 +50,4 @@ func (p *PostgresStore) GetUserStore() *UserStore {
 func (p *PostgresStore) GetOperationHourStore() *OperationHourStore {
 
 	return NewOperationHourStore(p.Db)
-}
-
-// WithTx enables repository with transaction
-func (p *PostgresStore) WithTx(txHandle *gorm.DB) *PostgresStore {
-	if txHandle == nil {
-		log.Print("Transaction Database not found")
-		return p
-	}
-	p.Db = txHandle
-	return p
 }
