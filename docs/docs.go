@@ -37,7 +37,7 @@ var doc = `{
                 "summary": "createOrder",
                 "parameters": [
                     {
-                        "description": "Purchase Request with UserId min=0 , RestaurantID min = 1, DishName",
+                        "description": "Purchase Request with UserId min=0 , RestaurantID min = 1",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -273,7 +273,7 @@ var doc = `{
         }
     },
     "definitions": {
-        "api.listRestaurantRequest": {
+        "api.listRestaurantRequestByDate": {
             "type": "object",
             "required": [
                 "pageID",

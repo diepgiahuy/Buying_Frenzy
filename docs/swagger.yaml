@@ -1,5 +1,5 @@
 definitions:
-  api.listRestaurantRequest:
+  api.listRestaurantRequestByDate:
     properties:
       date:
         description: Date with format 2006-01-02 15:04:05
@@ -123,7 +123,7 @@ paths:
       - application/json
       description: Process a user purchasing a dish from a restaurant
       parameters:
-      - description: Purchase Request with UserId min=0 , RestaurantID min = 1, DishName
+      - description: Purchase Request with UserId min=0 , RestaurantID min = 1
         in: body
         name: data
         required: true
