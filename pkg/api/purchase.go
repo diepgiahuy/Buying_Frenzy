@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 	"github.com/diepgiahuy/Buying_Frenzy/pkg/model"
 	"github.com/gin-gonic/gin"
@@ -28,7 +27,7 @@ func (s *GinServer) validUser(ctx *gin.Context, userID int64, price float64, tx 
 		return nil, false
 	}
 	if userData.CashBalance < price {
-		ctx.JSON(http.StatusInternalServerError, errors.New(fmt.Sprintf("cashBalance is not enough , userId %d", userID)))
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("cashBalance is not enough , userId %d", userID)})
 		return nil, false
 	}
 	err = s.store.GetUserStore().WithUserTx(tx).DecreaseCashBalance(ctx, userData, price)
@@ -59,8 +58,7 @@ func (s *GinServer) validRestaurant(ctx *gin.Context, restaurantID int64, dishNa
 			return restaurantData, menu.Price, true
 		}
 	}
-
-	ctx.JSON(http.StatusNotFound, errors.New("dish not found in restaurant"))
+	ctx.JSON(http.StatusNotFound, gin.H{"error": "dish not found in restaurant"})
 	return nil, 0, false
 }
 
